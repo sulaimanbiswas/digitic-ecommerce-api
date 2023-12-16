@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 8080;
 const dbConnect = require("./config/dbConnect");
 const authRouter = require("./routes/auth.route");
 const bodyParser = require("body-parser");
-const { notFound, errorHandler } = require("./middlewares/errorHadler");
+const { notFound, errorHandler } = require("./middlewares/errorHandler");
 
 // DB Connection
 dbConnect();

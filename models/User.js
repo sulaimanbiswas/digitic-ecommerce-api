@@ -1,4 +1,4 @@
-const mongoose = require("mongoose"); // Erase if already required
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 // Declare the Schema of the Mongo model
@@ -50,6 +50,28 @@ var userSchema = new mongoose.Schema(
       ],
       default: "active",
     },
+    address: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Address",
+      },
+    ],
+    cart: {
+      type: Array,
+      default: [],
+    },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
+    orders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    ],
   },
   {
     timestamps: true,
