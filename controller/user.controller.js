@@ -1,6 +1,10 @@
 const expressAsyncHandler = require("express-async-handler");
 const User = require("../models/User");
-const generateToken = require("../config/jwtToken");
+const {
+  generateToken,
+  generateRefreshToken,
+  verifyToken,
+} = require("../config/jwtToken");
 const validateMongoDbId = require("../utils/validateMongoDbId");
 
 // create a new user
@@ -30,11 +34,30 @@ const loginUser = expressAsyncHandler(async (req, res) => {
 
     // if user exists or not
     const user = await User.findOne({ email });
+
     if (user && user.isPasswordMatch(password)) {
+      const refreshToken = generateRefreshToken({
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+      });
+
+      const updateUser = await User.findByIdAndUpdate(
+        { _id: user._id },
+        { refreshToken },
+        { new: true, runValidators: true }
+      );
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 day
+      });
+
       res.status(200).json({
         success: true,
         message: "User logged in successfully",
-        data: user,
+        data: updateUser,
         token: generateToken({
           _id: user._id,
           email: user.email,
@@ -49,14 +72,59 @@ const loginUser = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// refresh token
+const refreshToken = expressAsyncHandler(async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    throw new Error("No refresh token");
+  }
+  try {
+    const user = User.findOne({ refreshToken });
+    if (!user) {
+      throw new Error("No user found");
+    }
+    const decoded = verifyToken(refreshToken);
+    const accessToken = generateToken({
+      _id: decoded._id,
+      email: decoded.email,
+      role: decoded.role,
+    });
+    res.json({ accessToken });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// logout user
+const logoutUser = expressAsyncHandler(async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    res.status(404);
+    throw new Error("No refresh token");
+  }
+  try {
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      res.status(404);
+      throw new Error("No user found");
+    }
+    await User.findByIdAndUpdate(user._id, { refreshToken: "" });
+    res.clearCookie("refreshToken");
+    res.status(200);
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 // update Current user
 const updateMe = expressAsyncHandler(async (req, res) => {
   const id = req.user?._id;
   validateMongoDbId(id);
   try {
-    const user = await User.findById(id);
-    if (user) {
-      const updatedUser = await User.findByIdAndUpdate(user, req.body, {
+    const userId = await User.findById(id);
+    if (userId) {
+      const updatedUser = await User.findByIdAndUpdate(userId, req.body, {
         new: true,
         runValidators: true,
       }).select("-password");
@@ -178,6 +246,8 @@ const deleteUser = expressAsyncHandler(async (req, res) => {
 module.exports = {
   createUser,
   loginUser,
+  refreshToken,
+  logoutUser,
   updateMe,
   updateUserById,
   getUsers,

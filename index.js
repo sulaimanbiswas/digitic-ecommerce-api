@@ -6,6 +6,7 @@ const dbConnect = require("./config/dbConnect");
 const authRouter = require("./routes/auth.route");
 const bodyParser = require("body-parser");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
+const cookieParser = require("cookie-parser");
 
 // DB Connection
 dbConnect();
@@ -15,6 +16,9 @@ dbConnect();
 // Body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// Cookie parser
+app.use(cookieParser());
 
 // Routes
 app.use("/api/v1/user", authRouter);

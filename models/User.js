@@ -72,6 +72,9 @@ var userSchema = new mongoose.Schema(
         ref: "Order",
       },
     ],
+    refreshToken: {
+      type: String,
+    },
   },
   {
     timestamps: true,
