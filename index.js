@@ -3,10 +3,12 @@ const app = express();
 const dotenv = require("dotenv").config();
 const PORT = process.env.PORT || 8080;
 const dbConnect = require("./config/dbConnect");
-const authRouter = require("./routes/auth.route");
 const bodyParser = require("body-parser");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 const cookieParser = require("cookie-parser");
+
+const authRouter = require("./routes/auth.route");
+const productRouter = require("./routes/product.route");
 
 // DB Connection
 dbConnect();
@@ -22,6 +24,7 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/v1/user", authRouter);
+app.use("/api/v1/product", productRouter);
 
 // Home Route
 app.get("/", (req, res) => res.send("Hello World!"));

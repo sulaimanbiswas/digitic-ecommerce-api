@@ -18,6 +18,7 @@ var userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
     },
     mobile: {
       type: String,
@@ -48,6 +49,7 @@ var userSchema = new mongoose.Schema(
         "unverified",
         "suspended",
       ],
+      lowercase: true,
       default: "active",
     },
     address: [
