@@ -1,4 +1,5 @@
 const mongoose = require("mongoose"); // Erase if already required
+const slugify = require("slugify");
 
 // Declare the Schema of the Mongo model
 var productSchema = new mongoose.Schema(
@@ -27,32 +28,45 @@ var productSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
+    discountPercentage: {
+      type: Number,
+      trim: true,
+      default: 0,
+    },
     quantity: {
       type: Number,
       required: true,
       default: 0,
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      //   type: mongoose.Schema.Types.ObjectId,
+      //   ref: "Category",
+      type: String,
+      required: true,
     },
     brand: {
       type: String,
-      enum: ["apple", "samsung", "microsoft", "lenovo", "asus", "unknown"],
       required: true,
       lowercase: true,
-      default: "Unknown",
     },
     sold: {
       type: Number,
       default: 0,
+    },
+    stock: {
+      type: Number,
+      default: 0,
+    },
+    thumbnail: {
+      type: String,
+      required: true,
     },
     images: {
       type: Array,
     },
     color: {
       type: String,
-      enum: ["red", "brown", "green", "blue", "black", "white"],
+      lowercase: true,
     },
     rating: [
       {

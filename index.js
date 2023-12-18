@@ -9,17 +9,15 @@ const cookieParser = require("cookie-parser");
 
 const authRouter = require("./routes/auth.route");
 const productRouter = require("./routes/product.route");
+const morgan = require("morgan");
 
 // DB Connection
 dbConnect();
 
 // Middleware
-
-// Body parser
+app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-// Cookie parser
 app.use(cookieParser());
 
 // Routes
