@@ -34,8 +34,9 @@ const loginUser = expressAsyncHandler(async (req, res) => {
 
     // if user exists or not
     const user = await User.findOne({ email });
+    const matchedPassword = await user.isPasswordMatch(password);
 
-    if (user && user.isPasswordMatch(password)) {
+    if (user && matchedPassword) {
       const refreshToken = generateRefreshToken({
         _id: user._id,
         email: user.email,
@@ -90,6 +91,33 @@ const refreshToken = expressAsyncHandler(async (req, res) => {
       role: decoded.role,
     });
     res.json({ accessToken });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// update password
+const updatePassword = expressAsyncHandler(async (req, res) => {
+  const id = req.user._id;
+  const password = req.body.password;
+  validateMongoDbId(id);
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    if (password) {
+      user.password = password;
+      const updatedPassword = await user.save();
+      res.status(200).json({
+        success: true,
+        message: "Password updated successfully",
+        data: updatedPassword,
+      });
+    } else {
+      throw new Error("Password not updated");
+    }
   } catch (error) {
     throw new Error(error);
   }
@@ -247,6 +275,7 @@ module.exports = {
   createUser,
   loginUser,
   refreshToken,
+  updatePassword,
   logoutUser,
   updateMe,
   updateUserById,

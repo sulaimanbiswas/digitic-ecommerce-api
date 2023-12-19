@@ -10,6 +10,7 @@ const {
   updateMe,
   refreshToken,
   logoutUser,
+  updatePassword,
 } = require("../controller/user.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -34,6 +35,13 @@ router.post("/login", loginUser);
  * @access  Public
  */
 router.post("/refresh-token", refreshToken);
+
+/**
+ * @desc    Update password
+ * @route   PUT /api/v1/user/update-password
+ * @access  Private/User & Admin
+ */
+router.put("/update-password", authMiddleware, updatePassword);
 
 /**
  * @desc    Logout user
