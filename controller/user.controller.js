@@ -38,7 +38,27 @@ const loginUser = expressAsyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
     const matchedPassword = await user.isPasswordMatch(password);
 
-    if (user && matchedPassword) {
+    if (user.status === "blocked") {
+      throw new Error("Your account is blocked");
+    } else if (user.status === "deleted") {
+      throw new Error("Your account is deleted");
+    } else if (user.status === "rejected") {
+      throw new Error("Your account is rejected");
+    } else if (user.status === "banned") {
+      throw new Error("Your account is banned");
+    } else if (user.status === "suspended") {
+      throw new Error("Your account is suspended");
+    } else if (user.status === "pending") {
+      throw new Error("Your account is pending");
+    } else if (user.status === "inactive") {
+      throw new Error("Your account is inactive");
+    }
+
+    if (
+      user &&
+      matchedPassword &&
+      (user.status === "active" || user.status === "verified")
+    ) {
       const refreshToken = generateRefreshToken({
         _id: user._id,
         email: user.email,
