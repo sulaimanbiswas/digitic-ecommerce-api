@@ -6,6 +6,8 @@ const {
   verifyToken,
 } = require("../config/jwtToken");
 const validateMongoDbId = require("../utils/validateMongoDbId");
+const sendEmail = require("./email.controller");
+const createHashToken = require("../utils/hashToken");
 
 // create a new user
 const createUser = expressAsyncHandler(async (req, res) => {
@@ -109,6 +111,69 @@ const updatePassword = expressAsyncHandler(async (req, res) => {
     }
     if (password) {
       user.password = password;
+      const updatedPassword = await user.save();
+      res.status(200).json({
+        success: true,
+        message: "Password updated successfully",
+        data: updatedPassword,
+      });
+    } else {
+      throw new Error("Password not updated");
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// forgot password
+const forgotPassword = expressAsyncHandler(async (req, res) => {
+  const email = req.body.email;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    const resetToken = await user.createPasswordResetToken();
+    await user.save();
+    const resetUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/user/reset-password/${resetToken}`;
+    const data = {
+      to: email,
+      subject: "Password reset",
+      text: `Your password reset link is ${resetUrl}`,
+      html: `<p>Your password reset link is <a href=${resetUrl}>Click Here</a> this link is valid till 10 minutes.</p> <p><a href=${resetUrl}>${resetUrl}</a></p> <p>If you didn't request this email, please ignore it.</p> <p>Thanks</p><p>Team</p>`,
+    };
+    sendEmail(data);
+    res.status(200).json({
+      success: true,
+      message: "Password reset token sent to email",
+      data: resetToken,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// reset password
+const resetPassword = expressAsyncHandler(async (req, res) => {
+  const password = req.body.password;
+  const resetToken = req.params.resetToken;
+  const hashToken = createHashToken(resetToken);
+  try {
+    const user = await User.findOne({
+      passwordResetToken: hashToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      res.status(404);
+      throw new Error("Invalid token or token expired");
+    }
+    if (password) {
+      user.password = password;
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
       const updatedPassword = await user.save();
       res.status(200).json({
         success: true,
@@ -276,6 +341,8 @@ module.exports = {
   loginUser,
   refreshToken,
   updatePassword,
+  forgotPassword,
+  resetPassword,
   logoutUser,
   updateMe,
   updateUserById,

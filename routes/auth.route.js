@@ -11,6 +11,8 @@ const {
   refreshToken,
   logoutUser,
   updatePassword,
+  forgotPassword,
+  resetPassword,
 } = require("../controller/user.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -42,6 +44,21 @@ router.post("/refresh-token", refreshToken);
  * @access  Private/User & Admin
  */
 router.put("/update-password", authMiddleware, updatePassword);
+
+/**
+ * @desc    Forgot password
+ * @route   POST /api/v1/user/forgot-password
+ * @access  Public
+ */
+router.post("/forgot-password", forgotPassword);
+
+/**
+ * @desc    Reset password
+ * @route   PUT /api/v1/user/reset-password/:resetToken
+ * @access  Public
+ * @note    This route is for resetting password
+ */
+router.put("/reset-password/:resetToken", resetPassword);
 
 /**
  * @desc    Logout user

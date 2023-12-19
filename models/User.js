@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const createHashToken = require("../utils/hashToken");
 
 // Declare the Schema of the Mongo model
 var userSchema = new mongoose.Schema(
@@ -107,10 +108,7 @@ userSchema.methods.isPasswordMatch = async function (enteredPassword) {
 
 userSchema.methods.createPasswordResetToken = async function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
-  this.passwordResetToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
+  this.passwordResetToken = createHashToken(resetToken);
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   return resetToken;
 };
