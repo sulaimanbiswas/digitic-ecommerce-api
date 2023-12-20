@@ -6,10 +6,12 @@ const dbConnect = require("./config/dbConnect");
 const bodyParser = require("body-parser");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 const cookieParser = require("cookie-parser");
+const morgan = require("morgan");
 
+// Import Routes
 const authRouter = require("./routes/auth.route");
 const productRouter = require("./routes/product.route");
-const morgan = require("morgan");
+const blogRouter = require("./routes/blog.route");
 
 // DB Connection
 dbConnect();
@@ -23,6 +25,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/v1/user", authRouter);
 app.use("/api/v1/product", productRouter);
+app.use("/api/v1/blog", blogRouter);
 
 // Home Route
 app.get("/", (req, res) => res.send("Hello World!"));
