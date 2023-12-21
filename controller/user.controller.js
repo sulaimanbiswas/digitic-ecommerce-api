@@ -65,7 +65,7 @@ const loginUser = expressAsyncHandler(async (req, res) => {
         role: user.role,
       });
 
-      const updateUser = await User.findByIdAndUpdate(
+      await User.findByIdAndUpdate(
         { _id: user._id },
         { refreshToken },
         { new: true, runValidators: true }
@@ -77,10 +77,13 @@ const loginUser = expressAsyncHandler(async (req, res) => {
         maxAge: 3 * 24 * 60 * 60 * 1000, // 3 day
       });
 
+      const query = User.findById(user._id);
+      const loginUser = await query.select("firstName lastName email role");
+
       res.status(200).json({
         success: true,
         message: "User logged in successfully",
-        data: updateUser,
+        data: loginUser,
         token: generateToken({
           _id: user._id,
           email: user.email,
