@@ -1,11 +1,11 @@
 const expressAsyncHandler = require("express-async-handler");
-const Category = require("../models/Category");
 const validateMongoDbId = require("../utils/validateMongoDbId");
+const BlogCategory = require("../models/BlogCategory");
 
 // create new category
 const createCategory = expressAsyncHandler(async (req, res) => {
   try {
-    const category = await Category.create(req.body);
+    const category = await BlogCategory.create(req.body);
     if (!category) {
       res.status(400);
       throw new Error("Unable to create category");
@@ -25,7 +25,7 @@ const updateCategoryById = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
   validateMongoDbId(id);
   try {
-    const updatedCategory = await Category.findByIdAndUpdate(id, req.body, {
+    const updatedCategory = await BlogCategory.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
@@ -48,7 +48,7 @@ const getCategoryById = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
   validateMongoDbId(id);
   try {
-    const category = await Category.findById(id);
+    const category = await BlogCategory.findById(id);
     if (!category) {
       res.status(404);
       throw new Error("Category not found");
@@ -67,7 +67,7 @@ const getCategoryById = expressAsyncHandler(async (req, res) => {
 // get all categories
 const getAllCategories = expressAsyncHandler(async (req, res) => {
   try {
-    const categories = await Category.find({});
+    const categories = await BlogCategory.find({});
     if (!categories) {
       res.status(404);
       throw new Error("Categories not found");
@@ -87,7 +87,7 @@ const deleteCategoryById = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
   validateMongoDbId(id);
   try {
-    const deletedCategory = await Category.findByIdAndDelete(id);
+    const deletedCategory = await BlogCategory.findByIdAndDelete(id);
     if (!deletedCategory) {
       res.status(400);
       throw new Error("Unable to delete category");
