@@ -50,7 +50,7 @@ var userSchema = new mongoose.Schema(
         "verified",
       ],
       lowercase: true,
-      default: "active",
+      default: "inactive",
     },
     address: [
       {
@@ -86,6 +86,12 @@ var userSchema = new mongoose.Schema(
     passwordResetExpires: {
       type: Date,
     },
+    verifyToken: {
+      type: String,
+    },
+    verifyTokenExpires: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -102,6 +108,13 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.isPasswordMatch = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.methods.createVerifyToken = function () {
+  const verifyToken = crypto.randomBytes(32).toString("hex");
+  this.verifyToken = createHashToken(verifyToken);
+  this.verifyTokenExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  return verifyToken;
 };
 
 userSchema.methods.createPasswordResetToken = async function () {

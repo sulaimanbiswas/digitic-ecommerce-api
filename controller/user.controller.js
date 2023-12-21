@@ -16,6 +16,23 @@ const createUser = expressAsyncHandler(async (req, res) => {
     const findUser = await User.findOne({ email });
     if (!findUser) {
       const newUser = await User.create(req.body);
+      if (!newUser) {
+        res.status(400);
+        throw new Error("User not created");
+      }
+      const verifyToken = newUser.createVerifyToken();
+      await newUser.save();
+      const verifyUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/api/v1/user/verify/${verifyToken}`;
+      const data = {
+        to: email,
+        subject: "Email verification",
+        text: `Your email verification link is ${verifyUrl}`,
+        html: `<p>Your email verification link is <a href=${verifyUrl}>Click Here</a> this link is valid till 10 minutes.</p> <p><a href=${verifyUrl}>${verifyUrl}</a></p> <p>If you didn't request this email, please ignore it.</p> <p>Thanks</p><p>Team</p>`,
+      };
+      sendEmail(data);
+
       res.status(201).json({
         success: true,
         message: "User created successfully",
@@ -24,6 +41,33 @@ const createUser = expressAsyncHandler(async (req, res) => {
     } else {
       throw new Error("User already exists");
     }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// verify user by token
+const verifyUser = expressAsyncHandler(async (req, res) => {
+  const verifyToken = req.params.verifyToken;
+  const hashToken = createHashToken(verifyToken);
+  try {
+    const user = await User.findOne({
+      verifyToken: hashToken,
+      verifyTokenExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      res.status(404);
+      throw new Error("Invalid token or token expired");
+    }
+    user.status = "active";
+    user.verifyToken = undefined;
+    user.verifyTokenExpires = undefined;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "User verified successfully",
+      data: user,
+    });
   } catch (error) {
     throw new Error(error);
   }
@@ -78,12 +122,12 @@ const loginUser = expressAsyncHandler(async (req, res) => {
       });
 
       const query = User.findById(user._id);
-      const loginUser = await query.select("firstName lastName email role");
+      const currentUser = await query.select("firstName lastName email role");
 
       res.status(200).json({
         success: true,
         message: "User logged in successfully",
-        data: loginUser,
+        data: currentUser,
         token: generateToken({
           _id: user._id,
           email: user.email,
@@ -361,6 +405,7 @@ const deleteUser = expressAsyncHandler(async (req, res) => {
 
 module.exports = {
   createUser,
+  verifyUser,
   loginUser,
   refreshToken,
   updatePassword,

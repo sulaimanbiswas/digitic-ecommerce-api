@@ -13,6 +13,7 @@ const {
   updatePassword,
   forgotPassword,
   resetPassword,
+  verifyUser,
 } = require("../controller/user.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -23,6 +24,13 @@ const router = express.Router();
  * @access  Public
  */
 router.post("/register", createUser);
+
+/**
+ * @desc    Verify user
+ * @route   GET /api/v1/user/verify/:verifyToken
+ * @access  Public
+ */
+router.get("/verify/:verifyToken", verifyUser);
 
 /**
  * @desc    Login user
