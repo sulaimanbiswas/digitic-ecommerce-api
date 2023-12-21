@@ -33,9 +33,6 @@ app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/blog-category", blogCategoryRouter);
 app.use("/api/v1/brand", brandRouter);
 
-// Home Route
-app.get("/", (req, res) => res.send("Welcome to Digitic E-Commerce API"));
-
 // Error Handler
 app.use(notFound);
 app.use(errorHandler);
