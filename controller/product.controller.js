@@ -28,7 +28,6 @@ const createProduct = expressAsyncHandler(async (req, res) => {
 // add to wishlist
 const addToWishList = expressAsyncHandler(async (req, res) => {
   const id = req.user._id;
-  validateMongoDbId(id);
   const productId = req.body.productId;
   validateMongoDbId(productId);
   try {
@@ -67,6 +66,70 @@ const addToWishList = expressAsyncHandler(async (req, res) => {
         data: user,
       });
     }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// rating and review a product
+const ratingAndReview = expressAsyncHandler(async (req, res) => {
+  const id = req.user._id;
+  const { productId, star, review } = req.body;
+  validateMongoDbId(productId);
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      res.status(404);
+      throw new Error("Product not found");
+    }
+    const alreadyRated = product.rating.find(
+      (item) => item.postedBy.toString() === id.toString()
+    );
+
+    if (alreadyRated) {
+      const updateRating = await Product.updateOne(
+        { rating: { $elemMatch: alreadyRated } },
+        { $set: { "rating.$.star": star, "rating.$.review": review } },
+        { new: true }
+      );
+      if (!updateRating) {
+        res.status(404);
+        throw new Error("Product rating not updated");
+      }
+    } else {
+      const rateProduct = await Product.findByIdAndUpdate(
+        productId,
+        {
+          $push: { rating: { star, review, postedBy: id } },
+        },
+        { new: true }
+      );
+      if (!rateProduct) {
+        res.status(404);
+        throw new Error("Product rating not updated");
+      }
+    }
+    const totalRating = await Product.findById(productId);
+    const total = totalRating.rating.length;
+    const sum = totalRating.rating.reduce((acc, item) => acc + item.star, 0);
+    const average = Math.round(sum / total);
+    const updateRating = await Product.findByIdAndUpdate(
+      productId,
+      {
+        $set: { totalRating: average },
+      },
+      { new: true }
+    );
+    if (!updateRating) {
+      res.status(404);
+      throw new Error("Product rating not updated");
+    }
+    res.status(200).json({
+      success: true,
+      message: "Product rating updated",
+      data: updateRating,
+    });
   } catch (error) {
     throw new Error(error);
   }
@@ -195,9 +258,10 @@ const deleteProduct = expressAsyncHandler(async (req, res) => {
 
 module.exports = {
   createProduct,
+  addToWishList,
+  ratingAndReview,
   updateProduct,
   getProductById,
   getAllProducts,
-  addToWishList,
   deleteProduct,
 };

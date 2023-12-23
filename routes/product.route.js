@@ -7,6 +7,7 @@ const {
   updateProduct,
   deleteProduct,
   addToWishList,
+  ratingAndReview,
 } = require("../controller/product.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 
@@ -23,6 +24,13 @@ router.post("/", authMiddleware, isAdmin, createProduct);
  * @access  Private/User & Admin
  */
 router.put("/wishlist", authMiddleware, addToWishList);
+
+/**
+ * @desc    Rating And Review a product
+ * @route   PUT /api/v1/product/rating-review
+ * @access  Private/User & Admin
+ */
+router.put("/rating-review", authMiddleware, ratingAndReview);
 
 /**
  * @desc    Update a product by id
