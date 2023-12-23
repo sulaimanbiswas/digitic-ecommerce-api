@@ -6,6 +6,7 @@ const {
   getAllProducts,
   updateProduct,
   deleteProduct,
+  addToWishList,
 } = require("../controller/product.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 
@@ -15,6 +16,13 @@ const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
  * @access  Private/Admin
  */
 router.post("/", authMiddleware, isAdmin, createProduct);
+
+/**
+ * @desc    Add to wishlist
+ * @route   PUT /api/v1/product/wishlist
+ * @access  Private/User & Admin
+ */
+router.put("/wishlist", authMiddleware, addToWishList);
 
 /**
  * @desc    Update a product by id
