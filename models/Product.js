@@ -1,5 +1,4 @@
 const mongoose = require("mongoose"); // Erase if already required
-const slugify = require("slugify");
 
 // Declare the Schema of the Mongo model
 var productSchema = new mongoose.Schema(
