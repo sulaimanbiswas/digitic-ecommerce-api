@@ -21,15 +21,28 @@ var userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      validate: {
+        validator: function (v) {
+          return /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid email!`,
+      },
     },
     mobile: {
       type: String,
       required: true,
       unique: true,
+      validate: {
+        validator: function (v) {
+          return /^\d{10}$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid mobile number!`,
+      },
     },
     password: {
       type: String,
       required: true,
+      minlength: 8,
     },
     role: {
       type: String,
