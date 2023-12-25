@@ -40,6 +40,14 @@ router.get("/verify/:verifyToken", verifyUser);
 router.post("/login", loginUser);
 
 /**
+ * @desc    Login admin
+ * @route   POST /api/v1/user/admin/login
+ * @access  Public
+ * @note    This route is for admin login
+ */
+router.post("/admin/login", loginUser);
+
+/**
  * @desc    Refresh token
  * @route   POST /api/v1/user/refresh-token
  * @access  Public

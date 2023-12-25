@@ -47,12 +47,11 @@ var blogSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    image: {
-      type: String,
-      required: true,
-      default:
-        "https://images.pexels.com/photos/262508/pexels-photo-262508.jpeg",
-    },
+    images: [
+      {
+        type: String,
+      },
+    ],
     author: {
       type: String,
       default: "Admin",

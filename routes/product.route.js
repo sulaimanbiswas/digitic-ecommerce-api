@@ -8,8 +8,13 @@ const {
   deleteProduct,
   addToWishList,
   ratingAndReview,
+  uploadImages,
 } = require("../controller/product.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
+const {
+  uploadPhoto,
+  productImageResize,
+} = require("../middlewares/uploadImages");
 
 /**
  * @desc    Create a new product
@@ -31,6 +36,20 @@ router.put("/wishlist", authMiddleware, addToWishList);
  * @access  Private/User & Admin
  */
 router.put("/rating-review", authMiddleware, ratingAndReview);
+
+/**
+ * @desc    Upload images by id
+ * @route   PUT /api/v1/product/upload-images/:id
+ * @access  Private/Admin
+ */
+router.put(
+  "/upload-images/:id",
+  authMiddleware,
+  isAdmin,
+  uploadPhoto.array("images", 10),
+  productImageResize,
+  uploadImages
+);
 
 /**
  * @desc    Update a product by id

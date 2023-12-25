@@ -142,6 +142,80 @@ const loginUser = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// admin login user by email and password
+const loginAdmin = expressAsyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // if user exists or not
+    const admin = await User.findOne({ email });
+    const matchedPassword = await admin.isPasswordMatch(password);
+
+    if (admin.status === "blocked") {
+      throw new Error("Your account is blocked");
+    } else if (admin.status === "deleted") {
+      throw new Error("Your account is deleted");
+    } else if (admin.status === "rejected") {
+      throw new Error("Your account is rejected");
+    } else if (admin.status === "banned") {
+      throw new Error("Your account is banned");
+    } else if (admin.status === "suspended") {
+      throw new Error("Your account is suspended");
+    } else if (admin.status === "pending") {
+      throw new Error("Your account is pending");
+    } else if (admin.status === "inactive") {
+      throw new Error("Your account is inactive");
+    }
+
+    if (admin.role !== "admin") {
+      throw new Error("You are not admin");
+    }
+
+    if (
+      admin &&
+      matchedPassword &&
+      (admin.status === "active" || admin.status === "verified") &&
+      admin.role === "admin"
+    ) {
+      const refreshToken = generateRefreshToken({
+        _id: admin._id,
+        email: admin.email,
+        role: admin.role,
+      });
+
+      await User.findByIdAndUpdate(
+        { _id: admin._id },
+        { refreshToken },
+        { new: true, runValidators: true }
+      );
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 day
+      });
+
+      const query = User.findById(admin._id);
+      const currentUser = await query.select("firstName lastName email role");
+
+      res.status(200).json({
+        success: true,
+        message: "User logged in successfully",
+        data: currentUser,
+        token: generateToken({
+          _id: admin._id,
+          email: admin.email,
+          role: admin.role,
+        }),
+      });
+    } else {
+      throw new Error("Invalid email or password");
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 // refresh token
 const refreshToken = expressAsyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
@@ -407,6 +481,7 @@ module.exports = {
   createUser,
   verifyUser,
   loginUser,
+  loginAdmin,
   refreshToken,
   updatePassword,
   forgotPassword,
