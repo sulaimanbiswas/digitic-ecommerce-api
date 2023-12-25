@@ -375,6 +375,32 @@ const updateMe = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// save current user address
+const saveAddress = expressAsyncHandler(async (req, res) => {
+  const id = req.user._id;
+  validateMongoDbId(id);
+  try {
+    const updateAddress = await User.findByIdAndUpdate(
+      id,
+      {
+        address: req.body.address,
+      },
+      { new: true, runValidators: true }
+    ).select("-password");
+    if (!updateAddress) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    res.status(200).json({
+      success: true,
+      message: "Address updated successfully",
+      data: updateAddress,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 // update a user by id
 const updateUserById = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -434,6 +460,28 @@ const getMe = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// get wishlist
+const getWishlist = expressAsyncHandler(async (req, res) => {
+  const id = req.user._id;
+  validateMongoDbId(id);
+  try {
+    const user = await User.findById(id)
+      .populate("wishlist")
+      .select("-password");
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    res.status(200).json({
+      success: true,
+      message: "Wishlist fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 // get a single user by id
 const getUserById = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -488,8 +536,10 @@ module.exports = {
   resetPassword,
   logoutUser,
   updateMe,
+  saveAddress,
   updateUserById,
   getUsers,
+  getWishlist,
   getUserById,
   getMe,
   deleteUser,

@@ -65,12 +65,9 @@ var userSchema = new mongoose.Schema(
       lowercase: true,
       default: "inactive",
     },
-    address: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Address",
-      },
-    ],
+    address: {
+      type: String,
+    },
     cart: {
       type: Array,
       default: [],

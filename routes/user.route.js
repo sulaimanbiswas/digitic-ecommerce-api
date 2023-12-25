@@ -14,6 +14,9 @@ const {
   forgotPassword,
   resetPassword,
   verifyUser,
+  loginAdmin,
+  getWishlist,
+  saveAddress,
 } = require("../controller/user.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -45,7 +48,7 @@ router.post("/login", loginUser);
  * @access  Public
  * @note    This route is for admin login
  */
-router.post("/admin/login", loginUser);
+router.post("/admin/login", loginAdmin);
 
 /**
  * @desc    Refresh token
@@ -92,6 +95,13 @@ router.post("/logout", logoutUser);
 router.put("/me", authMiddleware, updateMe);
 
 /**
+ * @desc    Save user address
+ * @route   PUT /api/v1/user/address
+ * @access  Private/User & Admin
+ */
+router.put("/address", authMiddleware, saveAddress);
+
+/**
  * @desc    Update user by id
  * @route   PUT /api/v1/user/:id
  * @access  Private/User & Admin
@@ -111,6 +121,13 @@ router.get("/users", authMiddleware, isAdmin, getUsers);
  * @access  Private/User & Admin
  */
 router.get("/me", authMiddleware, getMe);
+
+/**
+ * @desc    Get wishlist of current user
+ * @route   GET /api/v1/user/wishlist
+ * @access  Private/User & Admin
+ */
+router.get("/wishlist", authMiddleware, getWishlist);
 
 /**
  * @desc    Get user by id
