@@ -6,7 +6,6 @@ const {
   getAllProducts,
   updateProduct,
   deleteProduct,
-  addToWishList,
   ratingAndReview,
   uploadImages,
 } = require("../controller/product.controller");
@@ -22,13 +21,6 @@ const {
  * @access  Private/Admin
  */
 router.post("/", authMiddleware, isAdmin, createProduct);
-
-/**
- * @desc    Add to wishlist
- * @route   PUT /api/v1/product/wishlist
- * @access  Private/User & Admin
- */
-router.put("/wishlist", authMiddleware, addToWishList);
 
 /**
  * @desc    Rating And Review a product

@@ -27,52 +27,6 @@ const createProduct = expressAsyncHandler(async (req, res) => {
   }
 });
 
-// add to wishlist
-const addToWishList = expressAsyncHandler(async (req, res) => {
-  const id = req.user._id;
-  const productId = req.body.productId;
-  validateMongoDbId(productId);
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      res.status(404);
-      throw new Error("User not found");
-    }
-    const alreadyInWishList = user.wishlist.find(
-      (item) => item.toString() === productId.toString()
-    );
-    if (alreadyInWishList) {
-      let user = await User.findByIdAndUpdate(
-        id,
-        {
-          $pull: { wishlist: productId },
-        },
-        { new: true }
-      );
-      res.status(200).json({
-        success: true,
-        message: "Product removed from wishlist",
-        data: user,
-      });
-    } else {
-      let user = await User.findByIdAndUpdate(
-        id,
-        {
-          $push: { wishlist: productId },
-        },
-        { new: true }
-      );
-      res.status(200).json({
-        success: true,
-        message: "Product added to wishlist",
-        data: user,
-      });
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
 // rating and review a product
 const ratingAndReview = expressAsyncHandler(async (req, res) => {
   const id = req.user._id;
@@ -295,7 +249,6 @@ const deleteProduct = expressAsyncHandler(async (req, res) => {
 
 module.exports = {
   createProduct,
-  addToWishList,
   ratingAndReview,
   uploadImages,
   updateProduct,

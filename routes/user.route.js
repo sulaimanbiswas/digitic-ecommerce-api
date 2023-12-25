@@ -17,6 +17,8 @@ const {
   loginAdmin,
   getWishlist,
   saveAddress,
+  addToWishList,
+  addToCart,
 } = require("../controller/user.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -56,6 +58,13 @@ router.post("/admin/login", loginAdmin);
  * @access  Public
  */
 router.post("/refresh-token", refreshToken);
+
+/**
+ * @desc    User cart
+ * @route   POST /api/v1/user/cart
+ * @access  Private/User & Admin
+ */
+router.post("/cart", authMiddleware, addToCart);
 
 /**
  * @desc    Update password
@@ -100,6 +109,20 @@ router.put("/me", authMiddleware, updateMe);
  * @access  Private/User & Admin
  */
 router.put("/address", authMiddleware, saveAddress);
+
+/**
+ * @desc    Add to wishlist
+ * @route   PUT /api/v1/user/wishlist
+ * @access  Private/User & Admin
+ */
+router.put("/wishlist", authMiddleware, addToWishList);
+
+/**
+ * @desc    Add to cart
+ * @route   PUT /api/v1/user/cart
+ * @access  Private/User & Admin
+ */
+// router.put("/cart", authMiddleware, addToCart);
 
 /**
  * @desc    Update user by id

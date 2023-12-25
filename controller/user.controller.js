@@ -8,6 +8,8 @@ const {
 const validateMongoDbId = require("../utils/validateMongoDbId");
 const sendEmail = require("./email.controller");
 const createHashToken = require("../utils/hashToken");
+const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 
 // create a new user
 const createUser = expressAsyncHandler(async (req, res) => {
@@ -239,6 +241,56 @@ const refreshToken = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// add to cart
+const addToCart = expressAsyncHandler(async (req, res) => {
+  const { cart } = req.body;
+  const id = req.user._id;
+  validateMongoDbId(id);
+  try {
+    const products = [];
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    const cartExistByThisUser = await Cart.findOne({ orderedBy: user._id });
+    if (cartExistByThisUser) {
+      await cartExistByThisUser.deleteOne({ orderedBy: user._id });
+    }
+    for (let i = 0; i < cart.length; i++) {
+      let object = {};
+      object.product = cart[i]._id;
+      object.quantity = cart[i].quantity;
+      object.color = cart[i].color;
+      let priceFromDb = await Product.findById(cart[i]._id)
+        .select("price")
+        .exec();
+      object.price = priceFromDb.price;
+      products.push(object);
+    }
+    let cartTotal = 0;
+    for (let i = 0; i < products.length; i++) {
+      cartTotal = cartTotal + products[i].price * products[i].quantity;
+    }
+    const newCart = await new Cart({
+      products,
+      cartTotal,
+      orderedBy: user._id,
+    }).save();
+    if (!newCart) {
+      res.status(400);
+      throw new Error("Cart not created");
+    }
+    res.status(200).json({
+      success: true,
+      message: "Cart updated successfully",
+      data: newCart,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 // update password
 const updatePassword = expressAsyncHandler(async (req, res) => {
   const id = req.user._id;
@@ -401,6 +453,54 @@ const saveAddress = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// add to wishlist
+const addToWishList = expressAsyncHandler(async (req, res) => {
+  const id = req.user._id;
+  const productId = req.body.productId;
+  validateMongoDbId(productId);
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+    const alreadyInWishList = user.wishlist.find(
+      (item) => item.toString() === productId.toString()
+    );
+    if (alreadyInWishList) {
+      let user = await User.findByIdAndUpdate(
+        id,
+        {
+          $pull: { wishlist: productId },
+        },
+        { new: true }
+      );
+      res.status(200).json({
+        success: true,
+        message: "Product removed from wishlist",
+        data: user,
+      });
+    } else {
+      let user = await User.findByIdAndUpdate(
+        id,
+        {
+          $push: { wishlist: productId },
+        },
+        { new: true }
+      );
+      res.status(200).json({
+        success: true,
+        message: "Product added to wishlist",
+        data: user,
+      });
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+//
+
 // update a user by id
 const updateUserById = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
@@ -531,12 +631,14 @@ module.exports = {
   loginUser,
   loginAdmin,
   refreshToken,
+  addToCart,
   updatePassword,
   forgotPassword,
   resetPassword,
   logoutUser,
   updateMe,
   saveAddress,
+  addToWishList,
   updateUserById,
   getUsers,
   getWishlist,
