@@ -11,9 +11,9 @@ const router = require("express").Router();
 /**
  * @desc    Create new enquiry
  * @route   POST /api/v1/enquiry
- * @access  Private/Admin
+ * @access  Public
  */
-router.post("/", authMiddleware, isAdmin, createEnquiry);
+router.post("/", createEnquiry);
 
 /**
  * @decs    Update enquiry by id
