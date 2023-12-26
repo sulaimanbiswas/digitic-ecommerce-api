@@ -19,6 +19,8 @@ const {
   saveAddress,
   addToWishList,
   addToCart,
+  getCart,
+  emptyCart,
 } = require("../controller/user.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -58,13 +60,6 @@ router.post("/admin/login", loginAdmin);
  * @access  Public
  */
 router.post("/refresh-token", refreshToken);
-
-/**
- * @desc    User cart
- * @route   POST /api/v1/user/cart
- * @access  Private/User & Admin
- */
-router.post("/cart", authMiddleware, addToCart);
 
 /**
  * @desc    Update password
@@ -111,18 +106,18 @@ router.put("/me", authMiddleware, updateMe);
 router.put("/address", authMiddleware, saveAddress);
 
 /**
+ * @desc    User cart
+ * @route   POST /api/v1/user/cart
+ * @access  Private/User & Admin
+ */
+router.post("/cart", authMiddleware, addToCart);
+
+/**
  * @desc    Add to wishlist
  * @route   PUT /api/v1/user/wishlist
  * @access  Private/User & Admin
  */
 router.put("/wishlist", authMiddleware, addToWishList);
-
-/**
- * @desc    Add to cart
- * @route   PUT /api/v1/user/cart
- * @access  Private/User & Admin
- */
-// router.put("/cart", authMiddleware, addToCart);
 
 /**
  * @desc    Update user by id
@@ -151,6 +146,20 @@ router.get("/me", authMiddleware, getMe);
  * @access  Private/User & Admin
  */
 router.get("/wishlist", authMiddleware, getWishlist);
+
+/**
+ * @desc    Get cart of current user
+ * @route   GET /api/v1/user/cart
+ * @access  Private/User & Admin
+ */
+router.get("/cart", authMiddleware, getCart);
+
+/**
+ * @desc    Empty cart of current user
+ * @route   DELETE /api/v1/user/cart
+ * @access  Private/User & Admin
+ */
+router.delete("/cart", authMiddleware, emptyCart);
 
 /**
  * @desc    Get user by id
