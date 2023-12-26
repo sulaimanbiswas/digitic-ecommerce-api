@@ -18,6 +18,7 @@ const brandRouter = require("./routes/brand.route");
 const couponRouter = require("./routes/coupon.route");
 const cartRouter = require("./routes/cart.route");
 const orderRouter = require("./routes/order.route");
+const colorRouter = require("./routes/color.route");
 
 // DB Connection
 dbConnect();
@@ -38,6 +39,7 @@ app.use("/api/v1/brand", brandRouter);
 app.use("/api/v1/coupon", couponRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/color", colorRouter);
 
 // Error Handler
 app.use(notFound);
