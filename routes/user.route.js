@@ -18,9 +18,6 @@ const {
   getWishlist,
   saveAddress,
   addToWishList,
-  addToCart,
-  getCart,
-  emptyCart,
 } = require("../controller/user.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -106,13 +103,6 @@ router.put("/me", authMiddleware, updateMe);
 router.put("/address", authMiddleware, saveAddress);
 
 /**
- * @desc    User cart
- * @route   POST /api/v1/user/cart
- * @access  Private/User & Admin
- */
-router.post("/cart", authMiddleware, addToCart);
-
-/**
  * @desc    Add to wishlist
  * @route   PUT /api/v1/user/wishlist
  * @access  Private/User & Admin
@@ -146,20 +136,6 @@ router.get("/me", authMiddleware, getMe);
  * @access  Private/User & Admin
  */
 router.get("/wishlist", authMiddleware, getWishlist);
-
-/**
- * @desc    Get cart of current user
- * @route   GET /api/v1/user/cart
- * @access  Private/User & Admin
- */
-router.get("/cart", authMiddleware, getCart);
-
-/**
- * @desc    Empty cart of current user
- * @route   DELETE /api/v1/user/cart
- * @access  Private/User & Admin
- */
-router.delete("/cart", authMiddleware, emptyCart);
 
 /**
  * @desc    Get user by id
