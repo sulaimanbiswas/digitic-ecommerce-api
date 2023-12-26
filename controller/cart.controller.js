@@ -3,6 +3,7 @@ const validateMongoDbId = require("../utils/validateMongoDbId");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const User = require("../models/User");
+const Coupon = require("../models/Coupon");
 
 // add to cart
 const addToCart = expressAsyncHandler(async (req, res) => {
@@ -96,8 +97,48 @@ const emptyCart = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// apply coupon to cart
+const applyCouponToCart = expressAsyncHandler(async (req, res) => {
+  const { coupon } = req.body;
+  const id = req.user._id;
+  validateMongoDbId(id);
+  try {
+    const findCoupon = await Coupon.findOne({ name: coupon }).exec();
+    if (!findCoupon) {
+      res.status(404);
+      throw new Error("Coupon is not valid");
+    }
+    if (findCoupon.expiry < Date.now()) {
+      res.status(404);
+      throw new Error("Coupon is expired");
+    }
+    let { products, cartTotal } = await Cart.findOne({ orderedBy: id })
+      .populate("products.product")
+      .exec();
+    let totalAfterDiscount = (
+      cartTotal -
+      (cartTotal * findCoupon.discount) / 100
+    ).toFixed(2);
+    await Cart.findOneAndUpdate(
+      { orderedBy: id },
+      { totalAfterDiscount },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: "Coupon applied successfully",
+      data: {
+        totalAfterDiscount,
+      },
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   addToCart,
   getCart,
   emptyCart,
+  applyCouponToCart,
 };

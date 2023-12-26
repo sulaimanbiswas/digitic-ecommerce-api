@@ -4,6 +4,7 @@ const {
   addToCart,
   getCart,
   emptyCart,
+  applyCouponToCart,
 } = require("../controller/cart.controller");
 const router = express.Router();
 
@@ -13,6 +14,13 @@ const router = express.Router();
  * @access  Private/User & Admin
  */
 router.post("/", authMiddleware, addToCart);
+
+/**
+ * @desc    Apply coupon to cart
+ * @route   POST /api/v1/user/cart/coupon
+ * @access  Private/User & Admin
+ */
+router.post("/coupon", authMiddleware, applyCouponToCart);
 
 /**
  * @desc    Get cart of current user
