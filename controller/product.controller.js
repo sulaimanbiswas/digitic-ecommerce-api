@@ -3,7 +3,7 @@ const expressAsyncHandler = require("express-async-handler");
 const slugifyTitle = require("../utils/slugify");
 const validateMongoDbId = require("../utils/validateMongoDbId");
 const User = require("../models/User");
-const cloudinaryUpload = require("../utils/cloudinary");
+const { cloudinaryUpload, cloudinaryDelete } = require("../utils/cloudinary");
 const fs = require("fs");
 
 // create a new product
@@ -91,10 +91,8 @@ const ratingAndReview = expressAsyncHandler(async (req, res) => {
   }
 });
 
-// upload product images by id
+// upload product images
 const uploadImages = expressAsyncHandler(async (req, res) => {
-  const id = req.params.id;
-  validateMongoDbId(id);
   try {
     const uploader = async (path) => await cloudinaryUpload(path, "images");
     const urls = [];
@@ -105,21 +103,30 @@ const uploadImages = expressAsyncHandler(async (req, res) => {
       urls.push(newPath);
       fs.unlinkSync(path);
     }
-    const product = await Product.findByIdAndUpdate(
-      id,
-      {
-        images: urls.map((item) => item.url),
-      },
-      { new: true }
-    );
-    if (!product) {
-      res.status(404);
-      throw new Error("Unable to upload images");
-    }
+    const images = urls.map((item) => item);
     res.status(200).json({
       success: true,
       message: "Images uploaded successfully",
-      data: product,
+      data: images,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// delete product images
+const deleteImages = expressAsyncHandler(async (req, res) => {
+  const id = req.params.id;
+  try {
+    const uploader = await cloudinaryDelete(id, "images");
+    if (!uploader) {
+      res.status(404);
+      throw new Error("Images not found");
+    }
+    res.status(200).json({
+      success: true,
+      message: "Images deleted successfully",
+      data: uploader,
     });
   } catch (error) {
     throw new Error(error);
@@ -251,6 +258,7 @@ module.exports = {
   createProduct,
   ratingAndReview,
   uploadImages,
+  deleteImages,
   updateProduct,
   getProductById,
   getAllProducts,
