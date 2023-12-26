@@ -99,16 +99,16 @@ const emptyCart = expressAsyncHandler(async (req, res) => {
 
 // apply coupon to cart
 const applyCouponToCart = expressAsyncHandler(async (req, res) => {
-  const { coupon } = req.body;
+  const applyCoupon = req.body.applyCoupon;
   const id = req.user._id;
   validateMongoDbId(id);
   try {
-    const findCoupon = await Coupon.findOne({ name: coupon }).exec();
-    if (!findCoupon) {
+    const coupon = await Coupon.findOne({ name: applyCoupon }).exec();
+    if (!coupon) {
       res.status(404);
       throw new Error("Coupon is not valid");
     }
-    if (findCoupon.expiry < Date.now()) {
+    if (coupon.expiry < Date.now()) {
       res.status(404);
       throw new Error("Coupon is expired");
     }
@@ -117,7 +117,7 @@ const applyCouponToCart = expressAsyncHandler(async (req, res) => {
       .exec();
     let totalAfterDiscount = (
       cartTotal -
-      (cartTotal * findCoupon.discount) / 100
+      (cartTotal * coupon.discount) / 100
     ).toFixed(2);
     await Cart.findOneAndUpdate(
       { orderedBy: id },

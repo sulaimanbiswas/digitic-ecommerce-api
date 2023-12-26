@@ -23,6 +23,7 @@ var orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       default: "Not Processed",
+      lowercase: true,
       enum: [
         "Not Processed",
         "Processing",

@@ -16,7 +16,8 @@ const categoryRouter = require("./routes/category.route");
 const blogCategoryRouter = require("./routes/blogCategory.route");
 const brandRouter = require("./routes/brand.route");
 const couponRouter = require("./routes/coupon.route");
-const cart = require("./routes/cart.route");
+const cartRouter = require("./routes/cart.route");
+const orderRouter = require("./routes/order.route");
 
 // DB Connection
 dbConnect();
@@ -35,7 +36,8 @@ app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/blog-category", blogCategoryRouter);
 app.use("/api/v1/brand", brandRouter);
 app.use("/api/v1/coupon", couponRouter);
-app.use("/api/v1/cart", cart);
+app.use("/api/v1/cart", cartRouter);
+app.use("/api/v1/order", orderRouter);
 
 // Error Handler
 app.use(notFound);
