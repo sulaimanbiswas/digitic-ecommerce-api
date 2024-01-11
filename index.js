@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
+const cors = require("cors");
 
 // Import Routes
 const authRouter = require("./routes/user.route");
@@ -25,6 +26,7 @@ const enquiryRouter = require("./routes/enquiry.route");
 dbConnect();
 
 // Middleware
+app.use(cors());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
