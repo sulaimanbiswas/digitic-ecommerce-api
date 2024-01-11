@@ -203,12 +203,14 @@ const loginAdmin = expressAsyncHandler(async (req, res) => {
       res.status(200).json({
         success: true,
         message: "User logged in successfully",
-        data: currentUser,
-        token: generateToken({
-          _id: admin._id,
-          email: admin.email,
-          role: admin.role,
-        }),
+        data: {
+          currentUser,
+          token: generateToken({
+            _id: admin._id,
+            email: admin.email,
+            role: admin.role,
+          }),
+        },
       });
     } else {
       throw new Error("Invalid email or password");
