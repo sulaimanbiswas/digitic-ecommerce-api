@@ -2,6 +2,7 @@ const {
   createOrder,
   getOrder,
   updateOrderStatus,
+  getOrderMe,
 } = require("../controller/order.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const express = require("express");
@@ -28,6 +29,14 @@ router.put("/status", authMiddleware, isAdmin, updateOrderStatus);
  * @access  Private/User & Admin
  * @note    This route is for getting orders current user
  */
-router.get("/", authMiddleware, getOrder);
+router.get("/me", getOrderMe);
+
+/**
+ * @desc    Get orders
+ * @route   GET /api/v1/order
+ * @access  Private/Admin
+ * @note    This route is for getting orders
+ */
+router.get("/", authMiddleware, isAdmin, getOrder);
 
 module.exports = router;

@@ -121,7 +121,7 @@ router.put("/:id", authMiddleware, isAdmin, updateUserById);
  * @route   GET /api/v1/user
  * @access  Private/Admin
  */
-router.get("/users", getUsers);
+router.get("/users", authMiddleware, isAdmin, getUsers);
 
 /**
  * @desc    Get current user

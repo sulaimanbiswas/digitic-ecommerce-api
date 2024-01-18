@@ -100,7 +100,7 @@ const updateOrderStatus = expressAsyncHandler(async (req, res) => {
 });
 
 // get orders current user
-const getOrder = expressAsyncHandler(async (req, res) => {
+const getOrderMe = expressAsyncHandler(async (req, res) => {
   const id = req.user._id;
   validateMongoDbId(id);
   try {
@@ -126,8 +126,32 @@ const getOrder = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// get orders
+const getOrder = expressAsyncHandler(async (req, res) => {
+  try {
+    const orders = await Order.find({})
+      .populate("products.product")
+      .populate("orderedBy")
+      .sort({ createdAt: -1 })
+      .exec();
+
+    if (!orders) {
+      res.status(404);
+      throw new Error("Orders not found");
+    }
+    res.status(200).json({
+      success: true,
+      message: "Orders found successfully",
+      data: orders,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   createOrder,
   updateOrderStatus,
+  getOrderMe,
   getOrder,
 };
