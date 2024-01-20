@@ -46,7 +46,6 @@ var productSchema = new mongoose.Schema(
     brand: {
       type: String,
       required: true,
-      lowercase: true,
     },
     sold: {
       type: Number,
