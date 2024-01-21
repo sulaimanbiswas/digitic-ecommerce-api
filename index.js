@@ -21,6 +21,7 @@ const cartRouter = require("./routes/cart.route");
 const orderRouter = require("./routes/order.route");
 const colorRouter = require("./routes/color.route");
 const enquiryRouter = require("./routes/enquiry.route");
+const uploadRouter = require("./routes/upload.route");
 
 // DB Connection
 dbConnect();
@@ -44,6 +45,7 @@ app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/color", colorRouter);
 app.use("/api/v1/enquiry", enquiryRouter);
+app.use("/api/v1/upload", uploadRouter);
 
 // Error Handler
 app.use(notFound);

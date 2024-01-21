@@ -7,14 +7,8 @@ const {
   updateProduct,
   deleteProduct,
   ratingAndReview,
-  uploadImages,
-  deleteImages,
 } = require("../controller/product.controller");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
-const {
-  uploadPhoto,
-  productImageResize,
-} = require("../middlewares/uploadImages");
 
 /**
  * @desc    Create a new product
@@ -29,27 +23,6 @@ router.post("/", authMiddleware, isAdmin, createProduct);
  * @access  Private/User & Admin
  */
 router.put("/rating-review", authMiddleware, ratingAndReview);
-
-/**
- * @desc    Upload images
- * @route   PUT /api/v1/product/upload-images
- * @access  Private/Admin
- */
-router.put(
-  "/upload-images/",
-  authMiddleware,
-  isAdmin,
-  uploadPhoto.array("images", 10),
-  productImageResize,
-  uploadImages
-);
-
-/**
- * @desc    Delete images by id
- * @route   DELETE /api/v1/product/delete-images/:id
- * @access  Private/Admin
- */
-router.delete("/delete-images/:id", authMiddleware, isAdmin, deleteImages);
 
 /**
  * @desc    Update a product by id

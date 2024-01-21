@@ -2,9 +2,6 @@ const Product = require("../models/Product");
 const expressAsyncHandler = require("express-async-handler");
 const slugifyTitle = require("../utils/slugify");
 const validateMongoDbId = require("../utils/validateMongoDbId");
-const User = require("../models/User");
-const { cloudinaryUpload, cloudinaryDelete } = require("../utils/cloudinary");
-const fs = require("fs");
 
 // create a new product
 const createProduct = expressAsyncHandler(async (req, res) => {
@@ -85,48 +82,6 @@ const ratingAndReview = expressAsyncHandler(async (req, res) => {
       success: true,
       message: "Product rating updated",
       data: updateRating,
-    });
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// upload product images
-const uploadImages = expressAsyncHandler(async (req, res) => {
-  try {
-    const uploader = async (path) => await cloudinaryUpload(path, "images");
-    const urls = [];
-    const files = req.files;
-    for (const file of files) {
-      const { path } = file;
-      const newPath = await uploader(path);
-      urls.push(newPath);
-      fs.unlinkSync(path);
-    }
-    const images = urls.map((item) => item);
-    res.status(200).json({
-      success: true,
-      message: "Images uploaded successfully",
-      data: images,
-    });
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-// delete product images
-const deleteImages = expressAsyncHandler(async (req, res) => {
-  const id = req.params.id;
-  try {
-    const uploader = await cloudinaryDelete(id, "images");
-    if (!uploader) {
-      res.status(404);
-      throw new Error("Images not found");
-    }
-    res.status(200).json({
-      success: true,
-      message: "Images deleted successfully",
-      data: uploader,
     });
   } catch (error) {
     throw new Error(error);
@@ -257,8 +212,6 @@ const deleteProduct = expressAsyncHandler(async (req, res) => {
 module.exports = {
   createProduct,
   ratingAndReview,
-  uploadImages,
-  deleteImages,
   updateProduct,
   getProductById,
   getAllProducts,
