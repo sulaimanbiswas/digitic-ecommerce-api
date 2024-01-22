@@ -38,10 +38,8 @@ var productSchema = new mongoose.Schema(
       default: 0,
     },
     category: {
-      //   type: mongoose.Schema.Types.ObjectId,
-      //   ref: "Category",
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
     },
     brand: {
       type: String,
@@ -55,9 +53,16 @@ var productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    images: {
-      type: Array,
-    },
+    images: [
+      {
+        public_id: {
+          type: String,
+        },
+        url: {
+          type: String,
+        },
+      },
+    ],
     color: [],
     tags: [],
     rating: [

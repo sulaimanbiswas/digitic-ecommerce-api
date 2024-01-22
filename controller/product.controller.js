@@ -118,7 +118,9 @@ const getProductById = expressAsyncHandler(async (req, res) => {
   const id = req.params.id;
   validateMongoDbId(id);
   try {
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
+      .populate("color")
+      .populate("category");
     if (!product) {
       res.status(404);
       throw new Error("Product not found");
@@ -143,7 +145,9 @@ const getAllProducts = expressAsyncHandler(async (req, res) => {
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    const query = Product.find(JSON.parse(queryStr));
+    const query = Product.find(JSON.parse(queryStr))
+      .populate("color")
+      .populate("category");
 
     // sorting
     if (req.query.sort) {
