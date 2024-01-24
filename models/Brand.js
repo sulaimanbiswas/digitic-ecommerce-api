@@ -8,6 +8,7 @@ var brandSchema = new mongoose.Schema(
       required: true,
       unique: true,
       index: true,
+      lowercase: true,
     },
   },
   {

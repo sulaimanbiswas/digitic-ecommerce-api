@@ -8,6 +8,7 @@ var categorySchema = new mongoose.Schema(
       required: true,
       unique: true,
       index: true,
+      lowercase: true,
     },
   },
   {
