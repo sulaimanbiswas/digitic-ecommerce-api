@@ -229,7 +229,9 @@ const getBlogById = expressAsyncHandler(async (req, res) => {
       { new: true }
     )
       .populate("likes")
-      .populate("dislikes");
+      .populate("dislikes")
+      .populate("category")
+      .populate("postedBy");
     if (!blog) {
       res.status(404);
       throw new Error("Blog not found");
@@ -247,7 +249,7 @@ const getBlogById = expressAsyncHandler(async (req, res) => {
 // get all blog
 const getAllBlogs = expressAsyncHandler(async (req, res) => {
   try {
-    const blog = await Blog.find({});
+    const blog = await Blog.find({}).populate("category");
     if (!blog) {
       res.status(404);
       throw new Error("Blog not found");

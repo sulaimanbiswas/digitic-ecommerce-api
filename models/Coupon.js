@@ -9,7 +9,7 @@ var couponSchema = new mongoose.Schema({
     uppercase: true,
     validate: {
       validator: function (v) {
-        return /^[A-Za-z0-9]+$/.test(v);
+        return /^[A-Z0-9]+$/.test(v);
       },
       message: (props) => `${props.value} is not a valid name!`,
     },

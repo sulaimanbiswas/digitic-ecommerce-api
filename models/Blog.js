@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const slugify = require("slugify");
 
 // Declare the Schema of the Mongo model
 var blogSchema = new mongoose.Schema(
@@ -8,8 +7,6 @@ var blogSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true,
-      lowercase: true,
     },
     slug: {
       type: String,
@@ -21,8 +18,8 @@ var blogSchema = new mongoose.Schema(
       require: true,
     },
     category: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "BlogCategory",
     },
     countViews: {
       type: Number,
@@ -50,7 +47,12 @@ var blogSchema = new mongoose.Schema(
     ],
     images: [
       {
-        type: String,
+        public_id: {
+          type: String,
+        },
+        url: {
+          type: String,
+        },
       },
     ],
     author: {
